@@ -275,6 +275,9 @@ class LabHandler(SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write("Demo submission received. No credentials were collected.".encode("utf-8"))
 
-server = HTTPServer(("0.0.0.0", 8080), LabHandler)
-print("Server running at: http://127.0.0.1:8080")
+import os
+
+port = int(os.environ.get("PORT", 8080))
+server = HTTPServer(("0.0.0.0", port), LabHandler)
+print(f"Server running on port {port}")
 server.serve_forever()
