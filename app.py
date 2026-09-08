@@ -16,160 +16,98 @@ HTML_FORM = """
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont,
-                         "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: Arial, sans-serif;
         }
 
         body {
-            background-color: #f0f2f5;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            background: #f0f2f5;
             min-height: 100vh;
         }
 
         .top-bar {
-            width: 100%;
-            background-color: #0056c6;
-            padding: 12px 16px;
-            display: flex;
-            align-items: center;
+            background: #0056c6;
             color: white;
-        }
-
-        .logo-circle {
-            border: 2px solid white;
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 14px;
-            margin-right: 10px;
-        }
-
-        .title {
+            padding: 12px 16px;
             font-size: 22px;
-            font-weight: 600;
+            font-weight: bold;
         }
 
         .container {
             width: 100%;
             max-width: 400px;
+            margin: 0 auto;
             padding: 24px 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
 
         .demo-note {
-            width: 100%;
             background: #fff3cd;
             border: 1px solid #ffe69c;
             color: #664d03;
-            padding: 10px 12px;
+            padding: 10px;
             border-radius: 8px;
-            font-size: 13px;
-            margin-bottom: 18px;
             text-align: center;
+            font-size: 13px;
+            margin-bottom: 20px;
         }
 
-        .main-title {
-            font-size: 32px;
-            font-weight: bold;
-            color: #1c1e21;
-            margin-bottom: 12px;
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
         }
 
-        .welcome-box {
-            display: flex;
-            align-items: center;
+        .welcome {
+            text-align: center;
             margin-bottom: 24px;
-        }
-
-        .welcome-logo {
-            background-color: #0056c6;
-            color: white;
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 14px;
-            margin-right: 8px;
-        }
-
-        .welcome-text {
             font-size: 18px;
-            color: #1c1e21;
-            font-weight: 500;
-        }
-
-        form {
-            width: 100%;
         }
 
         .input-group {
-            margin-bottom: 12px;
-            background: #ffffff;
+            background: white;
             border: 1px solid #ccd0d5;
             border-radius: 8px;
             padding: 8px 12px;
+            margin-bottom: 12px;
         }
 
-        .input-group label {
+        label {
             display: block;
             font-size: 13px;
             color: #606770;
-            margin-bottom: 2px;
+            margin-bottom: 3px;
         }
 
-        .input-group input {
+        input {
             width: 100%;
             border: none;
             outline: none;
             font-size: 16px;
-            color: #1c1e21;
-            background: transparent;
+            padding: 4px 0;
         }
 
-        .password-wrapper {
-            display: flex;
-            align-items: center;
-        }
-
-        .btn-primary {
+        button {
             width: 100%;
             padding: 12px;
-            background-color: #0064e0;
+            background: #0064e0;
             border: none;
             border-radius: 20px;
             color: white;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 6px;
         }
 
         .footer {
-            margin-top: 30px;
             text-align: center;
             color: #65676b;
             font-size: 13px;
+            margin-top: 30px;
         }
     </style>
 </head>
 
 <body>
 
-    <div class="top-bar">
-        <div class="logo-circle">CS.</div>
-        <div class="title">Cyber Security</div>
-    </div>
+    <div class="top-bar">CS. Cyber Security</div>
 
     <div class="container">
 
@@ -177,11 +115,10 @@ HTML_FORM = """
             Cybersecurity training demo — please do not enter real passwords.
         </div>
 
-        <h1 class="main-title">Log In</h1>
+        <h1>Log In</h1>
 
-        <div class="welcome-box">
-            <div class="welcome-logo">CS.</div>
-            <span class="welcome-text">Welcome to Cyber Security</span>
+        <div class="welcome">
+            Welcome to Cyber Security
         </div>
 
         <form action="/login" method="POST">
@@ -193,14 +130,10 @@ HTML_FORM = """
 
             <div class="input-group">
                 <label for="password">Demo password</label>
-                <div class="password-wrapper">
-                    <input type="password" id="password" name="password" required>
-                </div>
+                <input type="password" id="password" name="password" required>
             </div>
 
-            <button type="submit" class="btn-primary">
-                Log In
-            </button>
+            <button type="submit">Log In</button>
 
         </form>
 
@@ -234,25 +167,26 @@ class LabHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         if self.path != "/login":
             self.send_response(404)
+            self.send_header("Content-Type", "text/plain; charset=utf-8")
             self.end_headers()
+            self.wfile.write(b"404 - Not Found")
             return
 
         content_length = int(self.headers.get("Content-Length", 0))
 
-        # Read the request body but do not retain the actual values.
         post_data = self.rfile.read(content_length).decode("utf-8")
-
         parsed_data = parse_qs(post_data)
 
+        # Only record whether fields were filled.
+        # Actual values are never printed or stored.
         username_filled = bool(parsed_data.get("username", [""])[0])
         password_filled = bool(parsed_data.get("password", [""])[0])
 
-        # Only record whether fields were filled.
-        # Actual credentials are never printed, stored, or logged.
         print(
             "Demo submission:",
             "username filled =", username_filled,
-            "password filled =", password_filled
+            "password filled =", password_filled,
+            flush=True
         )
 
         self.send_response(200)
@@ -278,7 +212,7 @@ class LabHandler(BaseHTTPRequestHandler):
         self.wfile.write(response.encode("utf-8"))
 
     def log_message(self, format, *args):
-        # Prevent request URLs from being written to logs.
+        # Do not log request URLs or other request details.
         return
 
 
@@ -286,6 +220,6 @@ port = int(os.environ.get("PORT", 8080))
 
 server = HTTPServer(("0.0.0.0", port), LabHandler)
 
-print(f"Server running on port {port}")
+print(f"Server running on port {port}", flush=True)
 
 server.serve_forever()
